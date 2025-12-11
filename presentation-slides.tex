@@ -4,24 +4,26 @@
 % theme  license: MIT
 
 \documentclass[compress,12pt]{beamer}
+\usepackage{framed}
 
 \usetheme{Arguellespell}
 \usepackage{minted}
 \setminted{style=one-dark}
 \usepackage{xcolor}
-    \usepackage{hyperref}
-    \hypersetup{
-      colorlinks=true,
-      linkcolor=blue,
-      urlcolor=cyan,
-      citecolor=green,
-      pdfborderstyle={/S/U/W 1}
-    }
+\usepackage[svgnames]{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=CornflowerBlue,
+  urlcolor=CornflowerBlue,
+  citecolor=CornflowerBlue,
+  pdfborderstyle={/S/U/W 1}
+}
 \usepackage{csquotes}
 \definecolor{OneDarkBG}{HTML}{3B414D}
 
 \title{Getting To Know My Enemies}
-\subtitle{Time and Time Zones in Rails}
+\subtitle{Time Classes and Time Zones in Rails}
 \event{B'more on Rails}
 \date{December 11, 2025}
 \author{Rosanna Speller}
@@ -30,13 +32,12 @@
 \gitlab{r-spell}
 \linkedin{rlspeller}
 
-
 \begin{document}
 
 \frame[plain]{\titlepage}
 
 
-\Section{Background}
+\Section{}
 \begin{frame}
  \frametitle{About me}
   \begin{itemize}
@@ -69,27 +70,70 @@
 
 \begin{frame}
  \frametitle{Examples}
-  Roughly based on Rails 8.1 "Getting Started" App
+  Roughly based on Rails 8.1 "Getting Started" App\footnote{ \href{https://guides.rubyonrails.org/v8.1/getting_started.html}{Rails Guide Getting Started}}
   \begin{itemize}
     \item An online store
     \item Products and subscribers
   \end{itemize}
 
-  TODO: Link it
+  
 \end{frame}
 
-\Section{Time}
+\begin{frame}[containsverbatim]
+\frametitle{Application Config}
+\framesubtitle{boiler plate info}
+
+In \mintinline{ruby}{config/application.rb}
+\begin{framed}
+\begin{minted}[fontsize=\scriptsize,style=sas,breaklines]{ruby}
+
+    # These settings can be overridden in specific environments using the files
+    # in config/environments, which are processed later.
+    #
+    # config.time_zone = "Central Time (US & Canada)"
+    # config.eager_load_paths << Rails.root.join("extras")
+    
+\end{minted}
+\end{framed}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{Application Config}
+\framesubtitle{Set CA Time Zone}
+In \mintinline{ruby}{config/application.rb}
+\begin{framed}
+\begin{minted}[fontsize=\scriptsize, style=sas,breaklines]{ruby}
+
+    # These settings can be overridden in specific environments using the files
+    # in config/environments, which are processed later.
+    #
+    config.time_zone = "Pacific Time (US & Canada)"
+    # config.eager_load_paths << Rails.root.join("extras")
+    
+\end{minted}
+\end{framed}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{Application Config}
+\framesubtitle{Set CA Time Zone}
+\centering
+\includegraphics[width=0.75\textwidth]{firegirl.jpg}
+
+\footnotesize Image from https://imgflip.com/memegenerator/7923908/fire-girl
+\end{frame}
+
 
 \begin{frame}[containsverbatim]
 \frametitle{date, datetime, time}
 \framesubtitle{in the database migration}
-\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
+\begin{minted}[fontsize=\scriptsize, bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
 
 class AddColumnsToProducts < ActiveRecord::Migration[8.1]
   def change
-    add_column :products, :foo, :date
-    add_column :products, :bar, :datetime
-    add_column :products, :stuff, :time
+    add_column :products, :launch_date, :date
+    add_column :products, :launch_datetime, :datetime
+    add_column :products, :launch_time, :time
   end
 end
 
@@ -104,12 +148,12 @@ end
 # db/schema.rb
 # ...
   create_table "products", force: :cascade do |t|
-    t.datetime "bar"
     t.datetime "created_at", null: false
-    t.date "foo"
     t.integer "inventory_count"
+    t.date "launch_date"
+    t.datetime "launch_datetime"
+    t.time "launch_time"
     t.string "name"
-    t.time "stuff"
     t.datetime "updated_at", null: false
   end
 
@@ -122,18 +166,18 @@ end
 \begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{erb}
 
 <div>
-  <%= form.label :foo, style: "display: block" %>
-  <%= form.date_field :foo %>
+  <%= form.label :launch_date, style: "display: block" %>
+  <%= form.date_field :launch_date %>
 </div>
 
 <div>
-  <%= form.label :bar, style: "display: block" %>
-  <%= form.datetime_field :bar %>
+  <%= form.label :launch_datetime, style: "display: block" %>
+  <%= form.datetime_field :launch_datetime %>
 </div>
 
 <div>
-  <%= form.label :stuff, style: "display: block" %>
-  <%= form.time_field :stuff %>
+  <%= form.label :launch_time, style: "display: block" %>
+  <%= form.time_field :launch_time %>
 </div>
 
 \end{minted}
@@ -154,78 +198,96 @@ end
 
 \begin{frame}[containsverbatim]
 \frametitle{date, datetime, time}
-\framesubtitle{in the Rails Console}
-\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
-
-timewarp(dev):010> Product.last
-  Product Load (6.3ms)  SELECT "products".* ...
-=>
-#<Product:0x00000001226dac90
- id: 8,
- created_at: "2025-12-07 04:54:08.975221000 +0000",
- name: "Example Product",
- updated_at: "2025-12-07 04:54:09.007336000 +0000",
- inventory_count: 4,
- foo: "2025-12-17",
- bar: "2025-12-24 12:34:00.000000000 +0000",
- stuff: "2000-01-01 12:34:00.000000000 +0000">
-timewarp(dev):011>
-\end{minted}
-\end{frame}
-
-
-
-\begin{frame}[standout]
-  \centering\large
- The attributes related to the \mintinline{ruby}{datetime}  \textit{\textsc{and} } \mintinline{ruby}{time} form inputs and column types  both look like a date and a time.
-\end{frame}
-
-
-\begin{frame}[containsverbatim]
-\frametitle{date, datetime, time}
-\framesubtitle{in the form helpers (part 3)}
-\includegraphics[width=0.75\textwidth]{filledformhelpers.png}
-\end{frame}
-
-\begin{frame}[containsverbatim]
-\frametitle{date, datetime, time}
 \framesubtitle{what about the parameters?}
 
-\normalsize Using the Rails \mintinline{ruby}{debug} gem:
+\normalsize Using the Rails \mintinline{ruby}{debug} gem:\footnote{\href{https://guides.rubyonrails.org/v8.1/debugging_rails_applications.html\#debugging-with-the-debug-gem}{Rails Guide: Debug Gem}}
+
 
 \begin{minted}[fontsize=\tiny,bgcolor=OneDarkBG, bgcolorpadding=1em,breaklines]{ruby}
 
-[45, 53] in ~/timewarp/app/controllers/products_controller.rb
+[45, 53] in ~/projects/timewarp/app/controllers/products_controller.rb
     45| 
     46|     def product_params
     47|       x = params.expect(product:
-    48|         [ :name,:description, :featured_image, :inventory_count, :foo, :bar, :stuff ]
+    48|         [ :name,:description, :featured_image, :inventory_count, :launch_date, :launch_datetime, :launch_time ]
     49|       )
 =>  50|       debugger
     51|       x
     52|     end
     53| end
-=>#0	ProductsController#product_params at ~/timewarp/app/controllers/products_controller.rb:50
-  #1	ProductsController#create at ~/timewarp/app/controllers/products_controller.rb:17
-  # and 81 frames (use `bt' command for all frames)
-(rdbg) x
-#<ActionController::Parameters {"name" => "Another Example", "description" => "<div>blah</div>", "inventory_count" => "2", "foo" => "2025-12-17", "bar" => "2025-12-24T12:34", "stuff" => "12:34"} permitted: true>
-
 \end{minted}
 
-TODO: put footnote about gem % https://guides.rubyonrails.org/v8.1/debugging_rails_applications.html#debugging-with-the-debug-gem
 \end{frame}
 
-\begin{frame}[standout,containsverbatim]
-  \centering\large
- Let's highlight those attributes a little better!
- \begin{minted}[bgcolor=white,fontsize=\scriptsize, style=sas,breaklines]{ruby}
- 
- #<ActionController::Parameters {"name" => "Another Example", "description" => "<div>blah</div>", "inventory_count" => "2", "foo" => "2025-12-17", "bar" => "2025-12-24T12:34", "stuff" => "12:34"} permitted: true>
+
+\begin{frame}[containsverbatim]
+\frametitle{date, datetime, time}
+\framesubtitle{what about the parameters?}
+
+
+See the params \mintinline{ruby}{x} using the debugger:
+\begin{framed}
+ \begin{minted}[fontsize=\tiny, style=sas,breaklines]{ruby}
+=>  50|       debugger
+    51|       x
+    52|     end
+    53| end
+=>#0	ProductsController#product_params at ~/projects/timewarp/app/controllers/products_controller.rb:50
+  #1	ProductsController#create at ~/projects/timewarp/app/controllers/products_controller.rb:17
+  # and 81 frames (use `bt' command for all frames)
+(rdbg) x
+#<ActionController::Parameters {"name" => "Example Product", "description" => "<div>Blah</div>", "inventory_count" => "2", "launch_date" => "2025-12-24", "launch_datetime" => "2025-12-24T12:34", "launch_time" => "12:34"} permitted: true>
+(rdbg) 
+\end{minted}
+\end{framed}
+\end{frame}
+
+
+\begin{frame}[containsverbatim]
+\frametitle{date, datetime, time}
+\framesubtitle{what about the parameters?}
+
+
+Use command  \mintinline{ruby}{continue} to complete the action:
+\begin{framed}
+ \begin{minted}[fontsize=\tiny, style=sas,breaklines]{ruby}
+=>  50|       debugger
+    51|       x
+    52|     end
+    53| end
+=>#0	ProductsController#product_params at ~/projects/timewarp/app/controllers/products_controller.rb:50
+  #1	ProductsController#create at ~/projects/timewarp/app/controllers/products_controller.rb:17
+  # and 81 frames (use `bt' command for all frames)
+(rdbg) x
+#<ActionController::Parameters {"name" => "Example Product", "description" => "<div>Blah</div>", "inventory_count" => "2", "launch_date" => "2025-12-24", "launch_datetime" => "2025-12-24T12:34", "launch_time" => "12:34"} permitted: true>
+(rdbg) continue    # command
+  TRANSACTION (0.0ms)  BEGIN immediate TRANSACTION /*action='create',application='Timewarp',controller='products'*/
 
 \end{minted}
+\end{framed}
+\end{frame}
 
-TODO: see if can see how looks in DB but I'm not super familiar with sqlite
+
+
+\begin{frame}[containsverbatim]
+\frametitle{date, datetime, time}
+\framesubtitle{in the Rails Console}
+\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em,breaklines]{ruby}
+
+timewarp(dev):001> Product.last
+  Product Load (0.3ms)  SELECT "products".* FROM "products" ORDER BY "products"."id" DESC LIMIT 1 /*application='Timewarp'*/
+=> 
+#<Product:0x0000000129b8fd60
+ id: 10,
+ created_at: "2025-12-08 10:09:53.662802000 -0800",
+ name: "Example Product",
+ updated_at: "2025-12-08 10:09:53.668152000 -0800",
+ inventory_count: 2,
+ launch_date: "2025-12-24",
+ launch_datetime: "2025-12-24 12:34:00.000000000 -0800",
+ launch_time: "2000-01-01 12:34:00.000000000 -0800">
+
+\end{minted}
 \end{frame}
 
 \begin{frame}
@@ -247,12 +309,6 @@ There's also Classes:
 \end{itemize}
 \end{frame}
 
-\begin{frame}[standout]
-  \centering\large
-Surely these \mintinline{ruby}{Date}, \mintinline{ruby}{DateTime} and \mintinline{ruby}{Time} classes will have values like those of the \mintinline{ruby}{date}, \mintinline{ruby}{datetime} and \mintinline{ruby}{time} column types, and form helpers right?
-\end{frame}
-
-
 \begin{frame}
 \frametitle{Date, DateTime, Time}
 \framesubtitle{In Ruby and Rails}
@@ -264,6 +320,11 @@ Surely these \mintinline{ruby}{Date}, \mintinline{ruby}{DateTime} and \mintinlin
     \href{https://api.rubyonrails.org/v7.0/classes/Date.html}{\mintinline{ruby}{Date}},  \href{https://api.rubyonrails.org/v7.0/classes/DateTime.html}{\mintinline{ruby}{DateTime}} and \href{https://api.rubyonrails.org/v7.0/classes/Time.html}{\mintinline{ruby}{Time}}
 }
  \end{frame}
+
+\begin{frame}[standout]
+  \centering\large
+Do instances of the \mintinline{ruby}{Date}, \mintinline{ruby}{DateTime} and \mintinline{ruby}{Time} classes have values similar to values we saw for \mintinline{ruby}{date}, \mintinline{ruby}{datetime} and \mintinline{ruby}{time} column types, and form helpers?
+\end{frame}
 
 \begin{frame}[containsverbatim]
 \frametitle{Date, DateTime, Time}
@@ -279,13 +340,9 @@ timewarp(dev):015> time = Time.now
 => 2025-12-07 17:03:17.282426 -0500
 
 \end{minted}
-\end{frame}
 
-\begin{frame}[standout]
-  \centering\large
- The instances of \mintinline{ruby}{DateTime}  \textit{\textsc{and} } \mintinline{ruby}{Time}  both look like a date and a time.
- 
- They look like pretty much the same date and time even!
+(I made the examples on Sunday)
+
 \end{frame}
 
 \begin{frame}[containsverbatim]
@@ -308,22 +365,45 @@ timewarp(dev):018> date_time.acts_like?(:date)
 => true
 timewarp(dev):019> date_time.acts_like?(:time)
 => true
-timewarp(dev):020> time.acts_like?(:date)
-=> false
-timewarp(dev):021> time.acts_like?(:time)
+timewarp(dev):020> time.acts_like?(:time)
 => true
+ 
+ 
 
 \end{minted}
 \end{frame}
 
+\begin{frame}[containsverbatim]
+\frametitle{Date, DateTime, Time}
+\framesubtitle{in the console (cont.)}
+
+\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
+
+timewarp(dev):013> date = Date.today
+=> Sun, 07 Dec 2025
+timewarp(dev):014> date_time = DateTime.now
+=> Sun, 07 Dec 2025 17:03:13 -0500
+timewarp(dev):015> time = Time.now
+=> 2025-12-07 17:03:17.282426 -0500
+timewarp(dev):016> date.acts_like?(:date)
+=> true
+timewarp(dev):017> date.acts_like?(:time)
+=> false
+timewarp(dev):018> date_time.acts_like?(:date)
+=> true
+timewarp(dev):019> date_time.acts_like?(:time)
+=> true
+timewarp(dev):020> time.acts_like?(:time)
+=> true
+timewarp(dev):021> time.acts_like?(:date)
+=> false
+
+\end{minted}
+\end{frame}
 
 \begin{frame}[standout]
   \centering\large
   \mintinline{ruby}{DateTime} is acts like a date and a time, so that must be the best one if I want to give a date and a time, right?
-  
-  Why is there a  \mintinline{ruby}{rubocop} that complains when people use \mintinline{ruby}{DateTime}? \footnote{See Rubocop Docs about  \href{https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Style/DateTime}{\mintinline{ruby}{DateTime} cop}}
-  
-   \mintinline{ruby}{DateTime} must be the best one, right?
     
 \end{frame}
 
@@ -336,106 +416,361 @@ timewarp(dev):021> time.acts_like?(:time)
   
   \end{frame}
   
-  \begin{frame}
-\frametitle{Date, DateTime, Time}
-\framesubtitle{Prefer Time to DateTime}
-  
-  At least as far back as Ruby 3.0 Ruby says:
-  
-  \begin{displayquote}
-   \mintinline{ruby}{DateTime} class is considered deprecated. Use  \mintinline{ruby}{Time} class.
-    \footnote{ \href{https://docs.ruby-lang.org/en/3.0/DateTime.html}{Ruby Docs }}
-   \end{displayquote}
-   
-  
-
-  \end{frame}
-  
   
 \begin{frame}
-\frametitle{Date, DateTime, Time}
+\frametitle{DateTime vs.Time}
 \framesubtitle{Prefer Time to DateTime}
   
-  At least as far back as Ruby 3.0 Ruby says:
+  At least as far back as Ruby 3.0, Ruby says:
   
   \begin{displayquote}
    \mintinline{ruby}{DateTime} class is considered deprecated. Use  \mintinline{ruby}{Time} class.
     \footnote{ \href{https://docs.ruby-lang.org/en/3.0/DateTime.html}{Ruby Docs }}
    \end{displayquote}
    
-  
-
   \end{frame}
   
   
-\begin{frame}[containsverbatim]
-\frametitle{Date, DateTime, Time}
-\framesubtitle{DateTime vs. Time}
+   \begin{frame}
+\frametitle{DateTime vs. Time}
+\framesubtitle{Except when you prefer DateTime}
 
-TODO explain more about DateTime vs Time
+  
+Current (3.4) Ruby still say that \mintinline{ruby}{DateTime} can still be preferable to  \mintinline{ruby}{Time} for \textbf{historical} dates.
 
+\vfill
+
+   See Ruby Docs for some interesting examples!\footnote{ \href{https://docs.ruby-lang.org/en/3.4/DateTime.html}{Read the Ruby Docs!}}
 \end{frame}
+  
 
-\begin{frame}[containsverbatim]
+\begin{frame}
+\frametitle{DateTime vs. Time}
+\framesubtitle{Why different?}
+
+\mintinline{ruby}{DateTime}
+\begin{itemize}
+  \item subclass of \mintinline{ruby}{Date}
+  \item can use old calendars (eg. Gregorian vs. Julian)
+  \item doesn't deal with leap seconds or day light savings\footnote{ \href{https://docs.ruby-lang.org/en/3.4/DateTime.html}{Ruby \mintinline{ruby}{DateTime} Docs}}
+\end{itemize}
+
+
+  
+\mintinline{ruby}{Time}
+\begin{itemize}
+  \item based internally on nanoseconds since "Unix Epoch"
+  \item mostly deals with leap seconds
+  \item deals with day light savings\footnote{ \href{https://docs.ruby-lang.org/en/3.4/Time.html}{Ruby \mintinline{ruby}{Time} Docs}}
+\end{itemize}
+ 
+\end{frame}
+  
+ \begin{frame}[containsverbatim]
 \frametitle{date, datetime, time}
 \framesubtitle{back in the console}
-Remember \mintinline{ruby}{foo} is a \mintinline{ruby}{date} , \mintinline{ruby}{bar} is a \mintinline{ruby}{datetime}  and \mintinline{ruby}{stuff} is a \mintinline{ruby}{time}  in terms of \textit{column type} in the database
+Let's look at the classes of the values we have for  \mintinline{ruby}{launch_date},  \mintinline{ruby}{launch_time} and \mintinline{ruby}{launch_datetime}.
 \begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
 
 timewarp(dev):011> product = Product.last
-timewarp(dev):012> product.foo.class
+timewarp(dev):012> product.launch_date.class
 => Date
-timewarp(dev):013> product.bar.class
+timewarp(dev):013> product.launch_time.class
 => ActiveSupport::TimeWithZone
-timewarp(dev):014> product.stuff.class
+
+\end{minted}
+\end{frame}
+
+  \begin{frame}[containsverbatim]
+\frametitle{date, datetime, time}
+\framesubtitle{back in the console}
+Let's look at the classes of the values we have for  \mintinline{ruby}{launch_date},  \mintinline{ruby}{launch_time} and \mintinline{ruby}{launch_datetime}.
+\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
+
+timewarp(dev):011> product = Product.last
+timewarp(dev):012> product.launch_date.class
+=> Date
+timewarp(dev):013> product.launch_time.class
 => ActiveSupport::TimeWithZone
+timewarp(dev):014> product.launch_datetime.class
+=> ActiveSupport::TimeWithZone
+
 \end{minted}
 \end{frame}
 
 
+  \begin{frame}[containsverbatim]
+\frametitle{TimeWithZone}
+\framesubtitle{What's the zone?}
+ \mintinline{ruby}{launch_time} and \mintinline{ruby}{launch_datetime} are Rails  \mintinline{ruby}{ActiveSupport::TimeWithZone}s.
+ 
+ Let's look at the  \mintinline{ruby}{zone}s: 
+\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
+
+
+timewarp(dev):013> product.launch_time.class
+=> ActiveSupport::TimeWithZone
+timewarp(dev):014> product.launch_datetime.class
+=> ActiveSupport::TimeWithZone
+timewarp(dev):015> product.launch_datetime.zone
+=> "PST"
+timewarp(dev):016> product.launch_time.zone
+=> "PST"
+
+\end{minted}
+\end{frame}
+
 \begin{frame}[containsverbatim]
-\frametitle{Time, TimeZone, and TimeWithZone}
+\frametitle{Time.now and Time.current}
 \framesubtitle{in the console}
 
 \begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
-timewarp(dev):028> now = Time.now
-=> 2025-12-07 18:53:04.5808 -0500
-timewarp(dev):029> now.class
+timewarp(dev):017> now = Time.now
+=> 2025-12-07 20:18:32.345682 -0500
+timewarp(dev):018> now.class
 => Time
-timewarp(dev):030> current = Time.current
-=> 2025-12-07 23:53:25.035459000 UTC +00:00
-timewarp(dev):031> current.class
+timewarp(dev):019> current = Time.current
+=> 2025-12-07 17:18:50.066319000 PST -08:00
+timewarp(dev):020> current.class
 => ActiveSupport::TimeWithZone
+\end{minted}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{Time.now and Time.current}
+\framesubtitle{in the console cont.}
+
+\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
+timewarp(dev):017> now = Time.now
+=> 2025-12-07 20:18:32.345682 -0500
+timewarp(dev):018> now.class
+=> Time
+timewarp(dev):019> current = Time.current
+=> 2025-12-07 17:18:50.066319000 PST -08:00
+timewarp(dev):020> current.class
+=> ActiveSupport::TimeWithZone
+timewarp(dev):021> current.zone
+=> "PST"
+
+
 \end{minted}
 \end{frame}
 
 \begin{frame}[containsverbatim]
-\frametitle{Time, TimeZone, and TimeWithZone}
-\framesubtitle{in the console part 2}
+\frametitle{Time.now and Time.current}
+\framesubtitle{in the console cont.}
 
 \begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
-timewarp(dev):036> now = Time.now
-=> 2025-12-07 18:56:09.391246 -0500
-timewarp(dev):037> current = Time.current
-=> 2025-12-07 23:56:15.552126000 UTC +00:00
-timewarp(dev):038> now.zone
+timewarp(dev):017> now = Time.now
+=> 2025-12-07 20:18:32.345682 -0500
+timewarp(dev):018> now.class
+=> Time
+timewarp(dev):019> current = Time.current
+=> 2025-12-07 17:18:50.066319000 PST -08:00
+timewarp(dev):020> current.class
+=> ActiveSupport::TimeWithZone
+timewarp(dev):021> current.zone
+=> "PST"
+timewarp(dev):022> now.zone
 => "EST"
-timewarp(dev):039> current.zone
-=> "UTC"
+
 \end{minted}
 \end{frame}
 
+
+\begin{frame}[containsverbatim]
+\frametitle{Time.zone}
+
+\mintinline{ruby}{Time.zone}, by default, will use the \mintinline{ruby}{TimeZone} set in the application config.\footnote{See \href{https://api.rubyonrails.org/v8.1/classes/ActiveSupport/TimeZone.html}{ \mintinline{ruby}{TimeZone}  Documentation}. Also look at the \href{https://api.rubyonrails.org/v8.1/classes/Time.html\#method-c-zone}{definition of the \mintinline{ruby}{zone} method in the Rails \mintinline{ruby}{Time} documentation}. It is also possible to set it as something else on a per request basis.}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{Time.current and Time.zone.now}
+
+
+\mintinline{ruby}{Time.current} is generally the same as \mintinline{ruby}{Time.zone.now}.
+
+\mintinline{ruby}{Time.current} is slightly superior, in that it also handles a scenario somehow \mintinline{ruby}{Time.zone} is  \mintinline{ruby}{nil}\footnote{See \href{https://github.com/rails/rails/blob/v8.1.1/activesupport/lib/active_support/core_ext/time/calculations.rb\#L39}{definition of  \mintinline{ruby}{current}}}
+
+\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em,breaklines]{ruby}
+timewarp(dev):001> current = Time.current
+=> 2025-12-07 06:26:14.626656000 PST -08:00
+timewarp(dev):002> time_in_app_zone = Time.zone.now
+=> 2025-12-07 06:26:17.387557000 PST -08:00
+\end{minted}
+
+\end{frame}
+
+
+\begin{frame}[containsverbatim]
+\frametitle{TimeWithZone and TimeZones}
+
+Let's see the times in some specified time zones.\footnote{See \href{https://api.rubyonrails.org/v8.1/classes/ActiveSupport/TimeZone.html}{\mintinline{ruby}{TimeZone} docs} for options}
+\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em,breaklines]{ruby}
+timewarp(dev):001> current = Time.current
+=> 2025-12-07 06:26:14.626656000 PST -08:00
+timewarp(dev):002> time_in_app_zone = Time.zone.now
+=> 2025-12-07 06:26:17.387557000 PST -08:00
+timewarp(dev):003> now_in_central = Time.now.in_time_zone("Central Time (US & Canada)")
+=> 2025-12-07 08:26:37.305944000 CST -06:00
+timewarp(dev):004> now_in_central.zone
+=> "CST"
+timewarp(dev):005> now_in_tehran = Time.now.in_time_zone("Tehran")
+=> 2025-12-07 17:57:08.617554000 +0330 +03:30
+timewarp(dev):006> now_in_tehran.zone
+=> "+0330"
+\end{minted}
+(I made the examples on Sunday)
+\end{frame}
+
+\begin{frame}[standout]
+  \centering\large
+  How many possible times/timezones for any one time in any one app?
+\end{frame}
+
+\begin{frame}[standout]
+  \centering\Huge 4
+  
+  \large
+  (At least 4)
+  
+It can be helpful to think of there being 4 main time zones\footnote{I first saw these 4 in this \href{https://thoughtbot.com/blog/its-about-time-zones}{thoughtbot article} but I've also looked into Rails docs to find info which backs this all up}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{4 Kinds of Times}
+
+
+\begin{enumerate} 
+
+\item system time
+\item application time
+\item database time
+\item the user's time
+\end{enumerate} 
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{4 Kinds of Times}
+\framesubtitle{We've already seen the first 2}
+
+\begin{enumerate} 
+
+\item system time
+\begin{itemize}
+\item My computer timezone is EST
+\item An instance of "regular" \mintinline{ruby}{Time} had EST  \mintinline{ruby}{zone}
+\end{itemize}
+\item application time
+\begin{itemize}
+\item We configured our application timezone to be Pacific Time
+\item  An instance of \mintinline{ruby}{TimeWithZone} (without zone specified) had PST  \mintinline{ruby}{zone}
+\end{itemize}
+
+\end{enumerate} 
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{More on System time}
+
+
+System time will be the time on the server/ computer/ machine where the app is running. (Can vary!)
+
+Not sure that Rails uses the term, system time, but I think it's what rails will refer to as:
+\begin{itemize}
+\item \mintinline{ruby}{"ENV['TZ']"}
+\item  "Ruby's *process* timezone" \footnote{I can talk more about this if there's time, but I say this based info \href{https://api.rubyonrails.org/v8.1/classes/ActiveSupport/TimeWithZone.html}{here} and \href{https://github.com/rails/rails/blob/v8.1.1/activesupport/lib/active_support/core_ext/date/conversions.rb\#L81}{here}}
+\item  \mintinline{ruby}{:local} (not to be confused with the method \mintinline{ruby}{local} on \mintinline{ruby}{TimeZone})\footnote{\href{https://api.rubyonrails.org/v8.1/classes/ActiveSupport/TimeZone.html\#method-i-local}{Docs on method \mintinline{ruby}{local}}}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{More on database time}
+
+
+Database time by default is in UTC time.\footnote{\href{https://guides.rubyonrails.org/v8.1/configuring.html\#config-active-record-default-timezone}{Rails config guide}}
+
+I lean towards leaving it this way.\footnote{\href{https://stackoverflow.com/questions/6118779/how-to-change-default-timezone-for-active-record-in-rails}{See discussion here for issues with changing it}}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{More on user time}
+
+
+You can set specific times for your users.\footnote{See Rails example of how to set \href{https://api.rubyonrails.org/v8.1/classes/Time.html\#method-c-zone-3D}{here}}
+
+\end{frame}
+
+\begin{frame}[standout]
+  \centering
+  
+  \large
+Enough time chaos!
+
+What should we do?
+\end{frame}
+
+  \begin{frame}
+\frametitle{Recommendations}
+
+  
+ \large 
+Use \mintinline{ruby}{Time} (or \mintinline{ruby}{TimeWithZone}) instead of \mintinline{ruby}{DateTime}
+  \vfill
+\normalsize
+There's a \mintinline{ruby}{rubocop DateTime} cop to help enforce this\footnote{See Rubocop Docs about \href{https://docs.rubocop.org/rubocop/1.81/cops_style.html\#styledatetime}{\mintinline{ruby}{DateTime} cop}}  
+
+ \end{frame}
+ 
+ 
+   \begin{frame}
+\frametitle{Recommendations}
+
+ \large 
+ Use \mintinline{ruby}{ActiveSupport::TimeWithZone}) over just generic Ruby \mintinline{ruby}{Time}. 
+ 
+   \vfill
+ \normalsize
+There is a \mintinline{ruby}{rubocop-rails TimeZone} cop that can be enabled to enforce this.\footnote{See Rubocop Rails Docs about  \href{https://docs.rubocop.org/rubocop-rails/2.34/cops_rails.html\#railstimezone}{\mintinline{ruby}{TimeZone} cop}}  
+
+ \end{frame}
+ 
+    \begin{frame}
+\frametitle{Recommendations}
+
+ \large 
+ Use \mintinline{ruby}{datetime}) column type for your migration when you want a date and a time.
+
+ 
+   \vfill
+ \normalsize
+Note: The default settings for timestamps in Rails adds them  \mintinline{ruby}{datetime}s in the schema and are \mintinline{ruby}{TimeWithZone} values.\footnote{See schema examples above, and \href{https://api.rubyonrails.org/v8.1/classes/ActiveRecord/Timestamp.html}{Timestamp Docs}}
+
+ \end{frame}
+ 
+\begin{frame}
+\frametitle{Recommendations}
+
+ \large 
+Remember that you stand on the shoulders of giants who have also struggled with time and time zones!
+
+ \end{frame}
 
 \End
 \begin{frame}[plain,standout]
   \centering
+  
   Thank you!!
   Questions?
   \vfill
 
-  \url{https://github.com/piazzai/arguelles} \\
-  \url{https://ctan.org/pkg/beamertheme-arguelles}
-  TODO citations about using pandoc
+  \footnotesize These Beamer slides made with a customized version of the theme \href{https://github.com/piazzai/arguelles}{Arguelles} 
+
 \end{frame}
 
+  
 \end{document}
