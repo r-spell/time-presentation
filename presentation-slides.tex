@@ -319,17 +319,12 @@ There's also Classes:
 \framesubtitle{In Ruby and Rails}
   
    \mintinline{ruby}{Date}, \mintinline{ruby}{DateTime} and \mintinline{ruby}{Time} 
-    are the each types of Ruby objects.\footnote{Ruby Docs for \href{https://docs.ruby-lang.org/en/3.2/Date.html}{\mintinline{ruby}{Date}}, \href{https://docs.ruby-lang.org/en/3.2/DateTime.html}{\mintinline{ruby}{DateTime}} and \href{https://docs.ruby-lang.org/en/3.2/Time.html}{\mintinline{ruby}{Time}}}
+    are Ruby classes.\footnote{Ruby Docs for \href{https://docs.ruby-lang.org/en/3.2/Date.html}{\mintinline{ruby}{Date}}, \href{https://docs.ruby-lang.org/en/3.2/DateTime.html}{\mintinline{ruby}{DateTime}} and \href{https://docs.ruby-lang.org/en/3.2/Time.html}{\mintinline{ruby}{Time}}}
     
     Rails has \mintinline{ruby}{ActiveSupport} core extensions for these 3 classes.\footnote{Rails Docs for
     \href{https://api.rubyonrails.org/v7.0/classes/Date.html}{\mintinline{ruby}{Date}},  \href{https://api.rubyonrails.org/v7.0/classes/DateTime.html}{\mintinline{ruby}{DateTime}} and \href{https://api.rubyonrails.org/v7.0/classes/Time.html}{\mintinline{ruby}{Time}}
 }
  \end{frame}
-
-\begin{frame}[standout]
-  \centering\large
-Do instances of the \mintinline{ruby}{Date}, \mintinline{ruby}{DateTime} and \mintinline{ruby}{Time} classes have values similar to values we saw for \mintinline{ruby}{date}, \mintinline{ruby}{datetime} and \mintinline{ruby}{time} column types, and form helpers?
-\end{frame}
 
 \begin{frame}[containsverbatim]
 \frametitle{Date, DateTime, Time}
@@ -408,7 +403,7 @@ timewarp(dev):021> time.acts_like?(:date)
 
 \begin{frame}[standout]
   \centering\large
-  \mintinline{ruby}{DateTime} is acts like a date and a time, so that must be the best one if I want to give a date and a time, right?
+  \mintinline{ruby}{DateTime} acts like a date and a time, so that must be the best one, if I want to give a date and a time, right?
     
 \end{frame}
 
@@ -423,7 +418,7 @@ timewarp(dev):021> time.acts_like?(:date)
   
   
 \begin{frame}
-\frametitle{DateTime vs.Time}
+\frametitle{DateTime vs. Time}
 \framesubtitle{Prefer Time to DateTime}
   
   At least as far back as Ruby 3.0, Ruby says:
@@ -438,10 +433,10 @@ timewarp(dev):021> time.acts_like?(:date)
   
    \begin{frame}
 \frametitle{DateTime vs. Time}
-\framesubtitle{Except when you prefer DateTime}
+\framesubtitle{\normalsize Except when you prefer DateTime}
 
   
-Current (3.4) Ruby still say that \mintinline{ruby}{DateTime} can still be preferable to  \mintinline{ruby}{Time} for \textbf{historical} dates.
+Current (3.4) Ruby Docs still say that \mintinline{ruby}{DateTime} is preferable to  \mintinline{ruby}{Time} for \textbf{historical} dates.
 
 \vfill
 
@@ -538,23 +533,6 @@ timewarp(dev):019> current = Time.current
 => 2025-12-07 17:18:50.066319000 PST -08:00
 timewarp(dev):020> current.class
 => ActiveSupport::TimeWithZone
-\end{minted}
-
-\end{frame}
-
-\begin{frame}[containsverbatim]
-\frametitle{Time.now and Time.current}
-\framesubtitle{in the console cont.}
-
-\begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em]{ruby}
-timewarp(dev):017> now = Time.now
-=> 2025-12-07 20:18:32.345682 -0500
-timewarp(dev):018> now.class
-=> Time
-timewarp(dev):019> current = Time.current
-=> 2025-12-07 17:18:50.066319000 PST -08:00
-timewarp(dev):020> current.class
-=> ActiveSupport::TimeWithZone
 timewarp(dev):021> current.zone
 => "PST"
 
@@ -597,7 +575,7 @@ timewarp(dev):022> now.zone
 
 \mintinline{ruby}{Time.current} is generally the same as \mintinline{ruby}{Time.zone.now}.
 
-\mintinline{ruby}{Time.current} is slightly superior, in that it also handles a scenario somehow \mintinline{ruby}{Time.zone} is  \mintinline{ruby}{nil}\footnote{See \href{https://github.com/rails/rails/blob/v8.1.1/activesupport/lib/active_support/core_ext/time/calculations.rb\#L39}{definition of  \mintinline{ruby}{current}}}
+\mintinline{ruby}{Time.current} is slightly superior, in that it also handles a scenario where somehow \mintinline{ruby}{Time.zone} is  \mintinline{ruby}{nil}\footnote{See \href{https://github.com/rails/rails/blob/v8.1.1/activesupport/lib/active_support/core_ext/time/calculations.rb\#L39}{definition of  \mintinline{ruby}{current}}}
 
 \begin{minted}[fontsize=\scriptsize,bgcolor=OneDarkBG, bgcolorpadding=1em,breaklines]{ruby}
 timewarp(dev):001> current = Time.current
@@ -641,7 +619,7 @@ timewarp(dev):006> now_in_tehran.zone
   \large
   (At least 4)
   
-It can be helpful to think of there being 4 main time zones\footnote{I first saw these 4 in this \href{https://thoughtbot.com/blog/its-about-time-zones}{thoughtbot article} but I've also looked into Rails docs to find info which backs this all up}
+It can be helpful to think of there being 4 main kinds of time/ time zones\footnote{I first saw these 4 in this \href{https://thoughtbot.com/blog/its-about-time-zones}{thoughtbot article} but I've also looked into Rails docs to find info which backs this all up}
 \end{frame}
 
 \begin{frame}[containsverbatim]
@@ -671,7 +649,7 @@ It can be helpful to think of there being 4 main time zones\footnote{I first saw
 \item application time
 \begin{itemize}
 \item We configured our application timezone to be Pacific Time
-\item  An instance of \mintinline{ruby}{TimeWithZone} (without zone specified) had PST  \mintinline{ruby}{zone}
+\item  An instance of \mintinline{ruby}{TimeWithZone} (without zone specified) had the default, PST,  \mintinline{ruby}{zone}
 \end{itemize}
 
 \end{enumerate} 
@@ -682,8 +660,10 @@ It can be helpful to think of there being 4 main time zones\footnote{I first saw
 
 
 System time will be the time on the server/ computer/ machine where the app is running. (Can vary!)
+\vfill
 
-Not sure that Rails uses the term, system time, but I think it's what rails will refer to as:
+\footnotesize
+Not sure that Rails uses the term "system time" but I think it's what Rails will refer to as:
 \begin{itemize}
 \item \mintinline{ruby}{"ENV['TZ']"}
 \item  "Ruby's *process* timezone" \footnote{I can talk more about this if there's time, but I say this based info \href{https://api.rubyonrails.org/v8.1/classes/ActiveSupport/TimeWithZone.html}{here} and \href{https://github.com/rails/rails/blob/v8.1.1/activesupport/lib/active_support/core_ext/date/conversions.rb\#L81}{here}}
